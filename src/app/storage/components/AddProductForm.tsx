@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { ApiClient, CreateProductCommand, ProductDto } from '../../../api/client';
+import { ApiClient, CreateProductCommand, ProductDto, UnitOfMeasurement } from '../../../api/client';
 
 export default function AddProductForm() {
   const [name, setName] = useState('');
@@ -35,6 +35,10 @@ export default function AddProductForm() {
     }
   };
 
+  // Helper to get enum entries as array of [key, value]
+  const unitOptions = Object.entries(UnitOfMeasurement)
+    .filter(([key, value]) => typeof value === 'number') as [string, number][];
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -68,14 +72,20 @@ export default function AddProductForm() {
 
         <div>
           <label htmlFor="unit" className="block text-sm font-medium">Unit</label>
-          <input
+          <select
             id="unit"
-            type="number"
             className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200"
             value={unit}
             onChange={(e) => setUnit(e.target.value === '' ? '' : Number(e.target.value))}
             required
-          />
+          >
+            <option value="">Select unit...</option>
+            {unitOptions.map(([key, value]) => (
+              <option key={value} value={value}>
+                {key}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
