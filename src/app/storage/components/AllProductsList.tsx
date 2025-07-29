@@ -2,8 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { ApiClient, ProductDto } from '../../../api/client'; // adjust path if needed
+import { useRouter } from 'next/navigation';
 
 export default function ProductList() {
+  const router = useRouter();
   const [products, setProducts] = useState<ProductDto[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const pageSize = 10;
@@ -30,7 +32,7 @@ export default function ProductList() {
     };
 
     fetchProducts(pageNumber);
-  }, [pageNumber]);
+  }, [pageNumber, router]);
 
   // Fetch total product count once on mount
   useEffect(() => {
@@ -50,9 +52,8 @@ export default function ProductList() {
   const handleDelete = async (id?: number) => {
     if (!id || !confirm('Delete this product?')) return;
     try {
-      await fetch(`http://localhost:5250/api/Storage/DeleteProductById?id=${id}`, {
-        method: 'DELETE',
-      });
+      await api.deleteProductById(id);
+
       // Refresh current page
       const data = await api.getAllProducts(pageNumber, pageSize);
       setProducts(data ?? []);
@@ -66,8 +67,9 @@ export default function ProductList() {
   };
 
   const handleEdit = (product: ProductDto) => {
-    console.log('Edit product:', product);
-    alert(`Edit feature clicked for product: ${product.name}`);
+    const json = JSON.stringify(product);
+    
+    router.push(`/storage/all_products?data=${json}`);
   };
 
   const handleNextPage = () => {
